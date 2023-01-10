@@ -1,0 +1,46 @@
+{
+  "name": "werkraum/websocket-provider",
+  "type": "typo3-cms-extension",
+  "description": "Run a websocket server within the TYPO3 context with extensible server logic.",
+  "keywords": [
+    "TYPO3",
+    "extension",
+    "websocket",
+    "cli",
+    "command"
+  ],
+  "authors": [
+    {
+      "name": "Jonathan Kieling",
+      "role": "Developer",
+      "email": "jonathan.kieling@werkraum.net"
+    }
+  ],
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "typo3/cms-core": "*",
+    "cboden/ratchet": "*",
+    "ext-pcntl": "*",
+    "ext-posix": "*",
+    "ext-json": "*"
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "websocket_provider"
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Werkraum\\WebsocketProvider\\": "Classes/"
+    }
+  },
+  "require-dev": {
+    "typo3/tailor": "^1.5"
+  },
+  "config": {
+    "allow-plugins": {
+      "typo3/cms-composer-installers": true,
+      "typo3/class-alias-loader": true
+    }
+  }
+}

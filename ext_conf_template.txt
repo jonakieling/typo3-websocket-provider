@@ -1,0 +1,14 @@
+# cat=Websocket; type=string; label=ip: The IP of the websocket server
+ip = 0.0.0.0
+# cat=Websocket; type=string; label=port: The port of the websocket server
+port = 18080
+# cat=Websocket; type=string; label=tlsCert: Path to the TLS certificate
+tlsCert =
+# cat=Websocket; type=string; label=tlsKey: Path to the TLS private key
+tlsKey =
+# cat=Websocket; type=boolean; label=allowSelfSigned: Allow self signed certificates
+allowSelfSigned =
+# cat=Websocket; type=string; label=port: The port of the websocket server
+siteIdentifier = main
+# cat=Websocket; type=string; label=handler: MessageComponent that handles all requests
+component = Werkraum\WebsocketProvider\EchoMessageComponent

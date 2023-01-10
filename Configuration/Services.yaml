@@ -1,0 +1,32 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Werkraum\WebsocketProvider\:
+    resource: '../Classes/*'
+
+  Werkraum\WebsocketProvider\Command\StartServerCommand:
+    tags:
+      - name: console.command
+        command: 'websocket:start'
+        description: 'Starts the websocket server'
+
+  Werkraum\WebsocketProvider\Command\StartServiceCommand:
+    tags:
+      - name: console.command
+        command: 'websocket:service'
+        description: 'Runs websocket:start with nohup'
+
+  Werkraum\WebsocketProvider\Command\StopServerCommand:
+    tags:
+      - name: console.command
+        command: 'websocket:stop'
+        description: 'Stops the websocket server'
+
+  Werkraum\WebsocketProvider\Command\ListServerCommand:
+    tags:
+      - name: console.command
+        command: 'websocket:list'
+        description: 'Lists running websocket servers'
