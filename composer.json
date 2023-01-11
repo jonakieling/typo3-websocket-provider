@@ -18,8 +18,8 @@
   ],
   "license": "GPL-2.0-or-later",
   "require": {
-    "typo3/cms-core": "*",
-    "cboden/ratchet": "*",
+    "typo3/cms-core": "^10.4",
+    "cboden/ratchet": "^0.4.4",
     "ext-pcntl": "*",
     "ext-posix": "*",
     "ext-json": "*"
