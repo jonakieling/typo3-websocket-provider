@@ -66,6 +66,8 @@ The setting accepts a site identifier to keep things environment independent.
 
 `ext-json`, `ext-pcntl` and `ext-posix` are required for the cli commands to check on the status of the server. 
 
+### NGINX reverse proxy
+
 You need a proxy pass for TLS websockets to work with Ratchet.
 
 Nginx (adjust for your setup):
@@ -80,3 +82,10 @@ location /socket.io {
 ```
 
 The connection URL on the client then is `wss://domain.tld/socket.io`
+
+### NGINX same port as web setup
+
+You can set up NGINX to listen on the same port and route depending on the Upgrade
+HTTP Header.
+
+https://beyondco.de/docs/laravel-websockets/basic-usage/ssl#same-location-for-websockets-and-web-contents
