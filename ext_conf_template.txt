@@ -1,14 +1,22 @@
-# cat=Websocket; type=string; label=ip: The IP of the websocket server
-ip = 0.0.0.0
-# cat=Websocket; type=string; label=port: The port of the websocket server
-port = 18080
-# cat=Websocket; type=string; label=tlsCert: Path to the TLS certificate
-tlsCert =
-# cat=Websocket; type=string; label=tlsKey: Path to the TLS private key
-tlsKey =
-# cat=Websocket; type=boolean; label=allowSelfSigned: Allow self signed certificates
-allowSelfSigned =
-# cat=Websocket; type=string; label=port: The port of the websocket server
-siteIdentifier = main
-# cat=Websocket; type=string; label=handler: MessageComponent that handles all requests
-component = Werkraum\WebsocketProvider\EchoMessageComponent
+app {
+    # cat=App; type=string; label=handler: MessageComponent that handles all requests
+    component =
+}
+
+server {
+    # cat=server; type=string; label=allowed_origins: List of client hosts that are allowed to connect (you can use site:identifier, empty allows all)
+    allowed_origins =
+    # cat=server; type=string; label=max_request_size_in_kb: The maximum number of KB a request can be
+    max_request_size_in_kb = 4
+}
+
+tls {
+    # cat=TLS; type=string; label=local_cert: Path to the TLS certificate
+    local_cert =
+    # cat=TLS; type=string; label=local_pk: Path to the TLS private key
+    local_pk =
+    # cat=TLS; type=boolean; label=allow_self_signed: Allow self signed certificates
+    allow_self_signed =
+    # cat=TLS; type=boolean; label=verify_peer: Verify the TLS peer
+    verify_peer =
+}
