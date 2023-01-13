@@ -13,12 +13,6 @@ services:
         command: 'websocket:start'
         description: 'Starts the websocket server'
 
-  Werkraum\WebsocketProvider\Command\StartServiceCommand:
-    tags:
-      - name: console.command
-        command: 'websocket:service'
-        description: 'Runs websocket:start with nohup'
-
   Werkraum\WebsocketProvider\Command\StopServerCommand:
     tags:
       - name: console.command

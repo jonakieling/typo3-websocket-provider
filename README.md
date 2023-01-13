@@ -59,7 +59,6 @@ The setting accepts a site identifier to keep things environment independent.
 | Command           | Description                     |
 |-------------------|---------------------------------|
 | `websocket:list`    | Lists running websocket servers |
-| `websocket:service` | Runs websocket:start with nohup |
 | `websocket:start`   | Starts the websocket server     |
 | `websocket:stop`    | Stops the websocket server      |
 
