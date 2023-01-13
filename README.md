@@ -1,3 +1,7 @@
+# Security notice
+
+Does not provide authentication, rate-limiting or user input validation.
+
 # websocket_provider
 
 Provider extension to run [Ratchet](https://github.com/ratchetphp/Ratchet) WebSocket servers within TYPO3.
@@ -28,12 +32,11 @@ on the protocol.
 
 --- 
 
-Set your message component in the extension settings. This extension provides a simple
-echo handler as default.
+Set your message component in the extension settings.
 
 _ext_localconf.php_
 ```php
-$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['websocket_provider']['component'] = Werkraum\WebsocketProvider\EchoMessageComponent::class
+$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['websocket_provider']['component'] = Vendor\Extensions\WebSocket\YourMessageComponent::class
 ```
 
 Mark you component as public to make use of the Symfony dependency injection
