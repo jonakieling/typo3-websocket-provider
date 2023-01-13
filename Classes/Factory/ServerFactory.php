@@ -14,8 +14,6 @@ use Ratchet\ComponentInterface;
 use Ratchet\Http\HttpServer;
 use Ratchet\Http\OriginCheck;
 use Ratchet\Server\IoServer;
-use Ratchet\Wamp\ServerProtocol;
-use Ratchet\Wamp\WampServerInterface;
 use Ratchet\WebSocket\WsServer;
 use React\EventLoop\Loop;
 use React\Socket\SocketServer;
@@ -68,11 +66,6 @@ class ServerFactory
         $socket->on('error', function (Exception $e) {
             echo 'Error' . $e->getMessage() . PHP_EOL;
         });
-
-        // Wrap the custom component in the WAMP protocol component when needed
-        if ($component instanceof WampServerInterface) {
-            $component = new ServerProtocol($component);
-        }
 
         return new IoServer(
             new HttpServer(
