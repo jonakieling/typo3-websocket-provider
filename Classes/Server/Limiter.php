@@ -168,4 +168,14 @@ class Limiter implements HttpServerInterface
         $this->maxMessagesPerSecond = $maxMessagesPerSecond;
         return $this;
     }
+
+    /**
+     * @param int $maxConnectionsPerSecond
+     * @return Limiter
+     */
+    public function setMaxConnectionsPerSecond(int $maxConnectionsPerSecond): Limiter
+    {
+        $this->maxConnectionsPerSecond = $maxConnectionsPerSecond;
+        return $this;
+    }
 }

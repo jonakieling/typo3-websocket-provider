@@ -8,6 +8,18 @@ server {
     allowed_origins =
     # cat=server; type=string; label=max_request_size_in_kb: The maximum number of KB a request can be
     max_request_size_in_kb = 4
+
+    # cat=server; type=string; label=max_connections: The total maximum number of concurrent connections
+    max_connections = 10000
+
+    # cat=server; type=string; label=max_connections_per_address: The maximum number of connections per IP address
+    max_connections_per_address = 10
+
+    # cat=server; type=string; label=max_messages_per_second: The maximum number messages one client can send per second
+    max_messages_per_second = 10
+
+    # cat=server; type=string; label=max_connections_per_address_per_second: The maximum number of new connections one client can open per second
+    max_connections_per_address_per_second = 10
 }
 
 tls {

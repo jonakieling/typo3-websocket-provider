@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Werkraum\WebsocketProvider\Server\Authentication;
 use Werkraum\WebsocketProvider\Server\HttpServer;
 use Werkraum\WebsocketProvider\Server\Limiter;
 use Werkraum\WebsocketProvider\Server\OriginCheck;
@@ -87,6 +88,9 @@ class ServerFactory
      * Stack:
      * - TCP
      * - HTTP
+     * - client origin check
+     * - rate/connection limiter
+     * - TYPO3 authentication (using existing FE or BE session)
      * - WebSocket
      * - Any message component
      *
@@ -123,22 +127,35 @@ class ServerFactory
             );
         }
 
-        return new IoServer(
-            new HttpServer(
-                new OriginCheck(
-                    new Limiter(
-                        // Laravel instead adds a Router which would make this multi-tenant
-                        new WsServer(
-                            $component
-                        ),
-                    ),
-                    $this->allowedOrigins()
-                ),
-                $this->config['server']['max_request_size_in_kb'] * 1024
-            ),
+        /**
+         * Build the server stack
+         */
+
+        // Laravel instead adds a Router instead of the component which would make this multi-tenant
+        $wsServer = new WsServer($component);
+
+        $auth = new Authentication($wsServer);
+
+        $limiter = (new Limiter($auth))
+            ->setMaxConnections($this->config['server']['max_connections'])
+            ->setMaxConnectionsPerAddress($this->config['server']['max_connections_per_address'])
+            ->setMaxMessagesPerSecond($this->config['server']['max_messages_per_second'])
+            ->setMaxConnectionsPerAddress($this->config['server']['max_connections_per_address_per_second']);
+
+        $originCheck = new OriginCheck($limiter, $this->allowedOrigins());
+
+        $httpServer = new HttpServer(
+            $originCheck,
+            $this->config['server']['max_request_size_in_kb'] * 1024
+        );
+
+        $ioServer = new IoServer(
+            $httpServer,
             $socket,
             $this->loop
         );
+
+        return $ioServer;
     }
 
     /**
