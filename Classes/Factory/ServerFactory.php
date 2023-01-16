@@ -22,6 +22,7 @@ use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Werkraum\WebsocketProvider\Server\HttpServer;
+use Werkraum\WebsocketProvider\Server\Limiter;
 use Werkraum\WebsocketProvider\Server\OriginCheck;
 use Werkraum\WebsocketProvider\Utility\ProcessUtility;
 
@@ -125,9 +126,11 @@ class ServerFactory
         return new IoServer(
             new HttpServer(
                 new OriginCheck(
-                    // Laravel instead adds a Router which would make this multi-tenant
-                    new WsServer(
-                        $component
+                    new Limiter(
+                        // Laravel instead adds a Router which would make this multi-tenant
+                        new WsServer(
+                            $component
+                        ),
                     ),
                     $this->allowedOrigins()
                 ),

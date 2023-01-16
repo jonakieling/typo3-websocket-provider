@@ -1,6 +1,6 @@
 # Security notice
 
-Does not provide authentication, rate-limiting or user input validation.
+Does not provide authentication or user input validation.
 
 # websocket_provider
 
