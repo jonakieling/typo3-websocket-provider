@@ -160,6 +160,7 @@ class Authentication implements HttpServerInterface
      */
     protected function addUserAspects(?RequestInterface $request, ConnectionInterface $conn): void
     {
+        // todo: harden this and use configurable TYPO3 setting for the cookie name
         $cookies = $this->parseCookie($request->getHeader('Cookie')[0])['cookies'];
         if (isset($cookies['be_typo_user'])) {
             $_COOKIE['be_typo_user'] = $cookies['be_typo_user'];
