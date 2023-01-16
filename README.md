@@ -1,6 +1,10 @@
 # Security notice
 
-Does not provide authentication or user input validation.
+Does not enforce authentication but adds any authenticated TYPO3 frontend or backend user as UserAspect to the
+connection. It is up to you to secure your app (e.g. by rejecting non-authenticated connections).
+
+Take care of your inputs and validate anything that gets send to the server (e.g. by establishing and validating a
+well-defined protocol for your app).
 
 # websocket_provider
 
