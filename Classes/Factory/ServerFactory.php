@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Werkraum\WebsocketProvider\Loop\ConfigureLoopInterface;
 use Werkraum\WebsocketProvider\Server\Authentication;
 use Werkraum\WebsocketProvider\Server\HttpServer;
 use Werkraum\WebsocketProvider\Server\Limiter;
@@ -105,6 +106,10 @@ class ServerFactory
             }
         } catch (\InvalidArgumentException $e) {
             throw new \InvalidArgumentException(sprintf("websocket component %s", $e->getMessage()), 1673625570824);
+        }
+
+        if ($component instanceof ConfigureLoopInterface) {
+            $component->configureLoop($this->loop);
         }
 
         $this->loop->addSignal(SIGINT, function () {
