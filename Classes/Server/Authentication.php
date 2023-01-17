@@ -6,6 +6,7 @@ use Psr\Http\Message\RequestInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\Http\HttpServerInterface;
 use Ratchet\MessageComponentInterface;
+use TYPO3\CMS\Core\Authentication\AbstractUserAuthentication;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Context\UserAspect;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -73,7 +74,7 @@ class Authentication implements HttpServerInterface
     /**
      * Taken from Guzzle3
      */
-    private static $cookieParts = array(
+    protected static $cookieParts = array(
         'domain'      => 'Domain',
         'path'        => 'Path',
         'max_age'     => 'Max-Age',
@@ -90,7 +91,7 @@ class Authentication implements HttpServerInterface
     /**
      * Taken from Guzzle3
      */
-    private function parseCookie($cookie, $host = null, $path = null, $decode = false) {
+    protected function parseCookie($cookie, $host = null, $path = null, $decode = false) {
         // Explode the cookie string using a series of semicolons
         $pieces = array_filter(array_map('trim', explode(';', $cookie)));
 
@@ -152,7 +153,7 @@ class Authentication implements HttpServerInterface
     }
 
     /**
-     * Attaches a TYPO3 Context to the connection.
+     * Attaches TYPO3 UserAspects for frontend and backend users to the connection.
      *
      * @param RequestInterface|null $request
      * @param ConnectionInterface $conn
@@ -160,23 +161,51 @@ class Authentication implements HttpServerInterface
      */
     protected function addUserAspects(?RequestInterface $request, ConnectionInterface $conn): void
     {
-        // todo: harden this and use configurable TYPO3 setting for the cookie name
-        $cookies = $this->parseCookie($request->getHeader('Cookie')[0])['cookies'];
-        if (isset($cookies['be_typo_user'])) {
-            $_COOKIE['be_typo_user'] = $cookies['be_typo_user'];
-            $beUser = GeneralUtility::makeInstance(BackendUserAuthentication::class);
-            $beUser->start();
-            $beUser->fetchGroupData();
-            $conn->beUser = GeneralUtility::makeInstance(UserAspect::class, $beUser);
-            unset($_COOKIE['be_typo_user']);
+
+        $cookies = [];
+        foreach ($request->getHeader('Cookie') as $item) {
+            $cookies = array_merge($cookies, $this->parseCookie($item)['cookies']);
         }
-        if (isset($cookies['fe_typo_user'])) {
-            $_COOKIE['fe_typo_user'] = $cookies['fe_typo_user'];
-            $feUser = GeneralUtility::makeInstance(FrontendUserAuthentication::class);
-            $feUser->start();
-            $feUser->fetchGroupData();
-            $conn->feUser = GeneralUtility::makeInstance(UserAspect::class, $feUser);
-            unset($_COOKIE['fe_typo_user']);
+
+        $beCookieName = trim($GLOBALS['TYPO3_CONF_VARS']['BE']['cookieName']);
+        if (isset($cookies[$beCookieName])) {
+            $conn->beUser = $this->fetchUserAspect(
+                BackendUserAuthentication::class,
+                $beCookieName,
+                $cookies[$beCookieName]
+            );
         }
+
+        $feCookieName = trim($GLOBALS['TYPO3_CONF_VARS']['FE']['cookieName']);
+        if (isset($cookies[$feCookieName])) {
+            $conn->feUser = $this->fetchUserAspect(
+                FrontendUserAuthentication::class,
+                $feCookieName,
+                $cookies[$beCookieName]
+            );
+        }
+    }
+
+    /**
+     * Loads a existing user session and creates a UserAspect for it.
+     *
+     * @param string $authenticationClass
+     * @param string $cookieName
+     * @param string $sessionId
+     * @return void
+     */
+    protected function fetchUserAspect(string $authenticationClass, string $cookieName, string $sessionId): UserAspect
+    {
+        /**
+         * The session cookie is set temporarily since the TYPO3 authentication fetches the id only from the global.
+         */
+        $_COOKIE[$cookieName] = $sessionId;
+        /** @var AbstractUserAuthentication $user */
+        $user = GeneralUtility::makeInstance($authenticationClass);
+        $user->start();
+        $user->fetchGroupData(); // group data needs to be loaded once to be accessible later
+        unset($_COOKIE[$cookieName]);
+
+        return GeneralUtility::makeInstance(UserAspect::class, $user);
     }
 }
