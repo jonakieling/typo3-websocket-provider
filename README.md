@@ -1,40 +1,33 @@
-# Security notice
-
-Does not enforce authentication but adds any authenticated TYPO3 frontend or backend user as UserAspect to the
-connection. It is up to you to secure your app (e.g. by rejecting non-authenticated connections).
-
-Take care of your inputs and validate anything that gets send to the server (e.g. by establishing and validating a
-well-defined protocol for your app).
-
 # websocket_provider
 
-Provider extension to run [Ratchet](https://github.com/ratchetphp/Ratchet) WebSocket servers within TYPO3.
-This allows for example to access the Database or any TYPO3 Context.
-
-The WebSocket server is run as a TYPO3 CLI command.
+Provides basic setup to run [Ratchet](https://github.com/ratchetphp/Ratchet) WebSocket servers within TYPO3.
 
 `composer req werkraum/websocket-provider`
 
-`typo3cms websocket:start` (default port 18080)
+`typo3cms websocket:start`
 
-## Your Server Logic
+## Security
 
-Implement the Ratchet interface `Ratchet\MessageComponentInterface` in your extension.
+### Authentication
+
+The current frontend and backend user sessions are added to the connection as UserAspects.
+
+Connections are not rejected when not authenticated.
+
+### Rate limiting
+
+A basic limiter is shipped and can be configured in the settings.
+
+## Implementing Handlers
+
+Implement the Ratchet interface `Ratchet\MessageComponentInterface` in your extension. `Ratchet\ComponentInterface` is
+sufficient if you do not need message handling.
 ```php
 class YourMessageComponent implements Ratchet\MessageComponentInterface
 {
     // interface methods with your logic go here
 }
 ```
-
-Strictly speaking you only need to implement `Ratchet\ComponentInterface`
-
-If your component implements `Ratchet\Wamp\WampServerInterface` it is automatically wrapped by the Ratchet
-ServerProtocol component that handles the basics of the WAMP protocol.
-See [the WAMP documentation](https://wamp-proto.org/wamp_latest_ietf.html#name-protocol-overview) for more information
-on the protocol.
-
---- 
 
 Set your message component in the extension settings.
 
@@ -54,12 +47,11 @@ services:
     public: true
 ```
 
+## Configuration
+
 See [ext_conf_template.txt](ext_conf_template.txt) for all configuration options.
 
-The server runs under the domain of a given TYPO3 site and only allows connections by the same domain.
-The setting accepts a site identifier to keep things environment independent.
-
-## Commands to start, stop and list running websocket servers
+## Commands
 | Command           | Description                     |
 |-------------------|---------------------------------|
 | `websocket:list`    | Lists running websocket servers |
@@ -70,26 +62,8 @@ The setting accepts a site identifier to keep things environment independent.
 
 `ext-json`, `ext-pcntl` and `ext-posix` are required for the cli commands to check on the status of the server. 
 
-### NGINX reverse proxy
+### NGINX
 
-You need a proxy pass for TLS websockets to work with Ratchet.
+Laravel has some good documentation on how to setup NGINX for WebSockets.
 
-Nginx (adjust for your setup):
-```
-location /socket.io {
- proxy_pass http://localhost:18080;
- proxy_http_version 1.1;
- proxy_set_header Upgrade $http_upgrade;
- proxy_set_header Connection "Upgrade";
- proxy_set_header Host $host; 
-}
-```
-
-The connection URL on the client then is `wss://domain.tld/socket.io`
-
-### NGINX same port as web setup
-
-You can set up NGINX to listen on the same port and route depending on the Upgrade
-HTTP Header.
-
-https://beyondco.de/docs/laravel-websockets/basic-usage/ssl#same-location-for-websockets-and-web-contents
+https://beyondco.de/docs/laravel-websockets/basic-usage/ssl#usage-with-a-reverse-proxy-like-nginx
