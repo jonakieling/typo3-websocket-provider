@@ -161,6 +161,7 @@ class Authentication implements HttpServerInterface
      */
     protected function addUserAspects(?RequestInterface $request, ConnectionInterface $conn): void
     {
+        // todo handle logoff, cookie remove, invalid session
 
         $cookies = [];
         foreach ($request->getHeader('Cookie') as $item) {
@@ -174,6 +175,8 @@ class Authentication implements HttpServerInterface
                 $beCookieName,
                 $cookies[$beCookieName]
             );
+        } else {
+            $conn->beUser = GeneralUtility::makeInstance(UserAspect::class);
         }
 
         $feCookieName = trim($GLOBALS['TYPO3_CONF_VARS']['FE']['cookieName']);
@@ -183,6 +186,8 @@ class Authentication implements HttpServerInterface
                 $feCookieName,
                 $cookies[$beCookieName]
             );
+        } else {
+            $conn->feUser = GeneralUtility::makeInstance(UserAspect::class);
         }
     }
 
