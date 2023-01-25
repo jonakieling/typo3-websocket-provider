@@ -7,6 +7,10 @@ services:
   Werkraum\WebsocketProvider\:
     resource: '../Classes/*'
 
+  Werkraum\WebsocketProvider\Factory\ServerFactory:
+    arguments:
+      - !tagged_iterator websocket.router
+
   Werkraum\WebsocketProvider\Command\StartServerCommand:
     tags:
       - name: console.command
@@ -24,3 +28,11 @@ services:
       - name: console.command
         command: 'websocket:list'
         description: 'Lists running websocket servers'
+
+  Werkraum\WebsocketProvider\Command\ListRoutesCommand:
+    arguments:
+      - !tagged_iterator websocket.router
+    tags:
+      - name: console.command
+        command: 'websocket:routes'
+        description: 'Lists all registered routes'

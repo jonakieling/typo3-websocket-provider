@@ -31,10 +31,15 @@ class StartServerCommand extends Command
      * @var array
      */
     protected array $config;
+    protected ServerFactory $serverFactory;
 
-    public function __construct()
+    /**
+     * @param ServerFactory $serverFactory
+     */
+    public function __construct(ServerFactory $serverFactory)
     {
         parent::__construct();
+        $this->serverFactory = $serverFactory;
         $this->config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('websocket_provider');
         $this->loop = Loop::get();
     }
@@ -48,7 +53,7 @@ class StartServerCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $server = (new ServerFactory)
+        $server = $this->serverFactory
             ->setLoop($this->loop)
             ->setHost($input->getOption('host'))
             ->setPort($input->getOption('port'))
@@ -56,14 +61,13 @@ class StartServerCommand extends Command
 
         $output->writeln(
             sprintf(
-                '<info>%s running on %s with pid %d</info>',
-                $this->config['app']['component'],
+                '<info>WebSocket server running on %s with pid %d</info>',
                 $server->socket->getAddress(),
                 getmypid()
             )
         );
 
-        ProcessUtility::saveInfoFile(getmypid(), $server->socket->getAddress(), $this->config['app']['component']);
+        ProcessUtility::saveInfoFile(getmypid(), $server->socket->getAddress());
 
         $server->run();
 

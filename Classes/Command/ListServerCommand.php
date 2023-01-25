@@ -28,8 +28,7 @@ class ListServerCommand extends Command
                 if (ProcessUtility::isRunning($contents['pid'])) {
                     $output->writeln(
                         sprintf(
-                            '<info>%s running on %s with pid %d</info>',
-                            $contents['component'],
+                            '<info>WebSocket server running on %s with pid %d</info>',
                             $contents['address'],
                             $contents['pid'],
                         )
@@ -37,8 +36,7 @@ class ListServerCommand extends Command
                 } else {
                     $output->writeln(
                         sprintf(
-                            '<warning>%s running on %s with pid %d (stale)</warning>',
-                            $contents['component'],
+                            '<warning>WebSocket server running on %s with pid %d (stale)</warning>',
                             $contents['address'],
                             $contents['pid'],
                         )

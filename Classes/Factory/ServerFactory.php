@@ -10,14 +10,17 @@
 namespace Werkraum\WebsocketProvider\Factory;
 
 use Ratchet\ComponentInterface;
+use Ratchet\Http\Router;
 use Ratchet\Server\IoServer;
-use Ratchet\WebSocket\WsServer;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Socket\SocketServer;
 use RuntimeException;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\RequestContext;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
+use TYPO3\CMS\Core\Routing\RouteCollection;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -27,6 +30,7 @@ use Werkraum\WebsocketProvider\Server\HttpServer;
 use Werkraum\WebsocketProvider\Server\Limiter;
 use Werkraum\WebsocketProvider\Server\OriginCheck;
 use Werkraum\WebsocketProvider\Utility\ProcessUtility;
+use Werkraum\WebsocketProvider\WebSocketRouteProviderInterface;
 
 class ServerFactory
 {
@@ -50,10 +54,19 @@ class ServerFactory
      */
     protected array $config;
 
-    public function __construct()
+    /**
+     * @var iterable
+     */
+    protected $webSocketRouterProvider;
+
+    /**
+     * @param iterable $webSocketRouterProvider
+     */
+    public function __construct(iterable $webSocketRouterProvider)
     {
         $this->config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('websocket_provider');
         $this->loop = Loop::get();
+        $this->webSocketRouterProvider = $webSocketRouterProvider;
     }
 
     /**
@@ -136,10 +149,16 @@ class ServerFactory
          * Build the server stack
          */
 
-        // Laravel instead adds a Router instead of the component which would make this multi-tenant
-        $wsServer = new WsServer($component);
+        $routes = new RouteCollection();
+        /** @var WebSocketRouteProviderInterface $routeProvider */
+        foreach ($this->webSocketRouterProvider as $routeProvider) {
+            $routes->addCollection($routeProvider->getRoutes());
+        }
+        $context = new RequestContext;
+        $matcher = new UrlMatcher($routes, $context);
+        $router = new Router($matcher);
 
-        $auth = new Authentication($wsServer);
+        $auth = new Authentication($router);
 
         $limiter = (new Limiter($auth))
             ->setMaxConnections($this->config['server']['max_connections'])

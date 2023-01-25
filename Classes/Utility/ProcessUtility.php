@@ -38,7 +38,7 @@ class ProcessUtility
      * @param $componentName
      * @return void
      */
-    public static function saveInfoFile($pid, $address, $componentName)
+    public static function saveInfoFile($pid, $address)
     {
         touch(ProcessUtility::infoDirectory() . $pid . '.pid');
         file_put_contents(
@@ -46,7 +46,6 @@ class ProcessUtility
             json_encode([
                 'pid' => $pid,
                 'address' => $address,
-                'component' => $componentName
             ])
         );
     }
