@@ -18,10 +18,15 @@ Connections are not rejected when not authenticated.
 
 A basic limiter is shipped and can be configured in the settings.
 
-## Implementing Handlers
+## Routes and Components
 
-Implement the Ratchet interface `Ratchet\MessageComponentInterface` in your extension. `Ratchet\ComponentInterface` is
-sufficient if you do not need message handling.
+Symfony Routes are used to provide multi-tenancy. Your WebSocket service needs at least one component and a route
+provider which provides a route to your component.
+
+### Components
+
+Implement the Ratchet interface `Ratchet\MessageComponentInterface` in your extension.
+This is going to be the entry point for your logic.
 ```php
 class YourMessageComponent implements Ratchet\MessageComponentInterface
 {
@@ -29,14 +34,7 @@ class YourMessageComponent implements Ratchet\MessageComponentInterface
 }
 ```
 
-Set your message component in the extension settings.
-
-_ext_localconf.php_
-```php
-$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['websocket_provider']['component'] = Vendor\Extensions\WebSocket\YourMessageComponent::class
-```
-
-Mark you component as public to make use of the Symfony dependency injection
+Mark you component as public to make use of the Symfony dependency injection within it.
 
 _Configuration/Services.yaml_
 ```yaml
@@ -47,16 +45,26 @@ services:
     public: true
 ```
 
+### Routes
+
+Implement the interface [`WebSocketRouteProviderInterface`](Classes%2FWebSocketRouteProviderInterface.php). The only
+method returns a Symfony RouteCollection. Each Route must have a WsServer as controller.
+You can use [WebSocketRouteFactory](Classes%2FFactory%2FWebSocketRouteFactory.php) to create WsServer Routes easily.
+
+> Be aware that the route of your WebSockets may be prefixed by whatever you have set for your Nginx config. In my case
+> this is often /socket.io to dealt with TLS.
+
 ## Configuration
 
 See [ext_conf_template.txt](ext_conf_template.txt) for all configuration options.
 
 ## Commands
-| Command           | Description                     |
-|-------------------|---------------------------------|
-| `websocket:list`    | Lists running websocket servers |
-| `websocket:start`   | Starts the websocket server     |
-| `websocket:stop`    | Stops the websocket server      |
+| Command            | Description                     |
+|--------------------|---------------------------------|
+| `websocket:list`   | Lists running websocket servers |
+| `websocket:routes` | Lists all configured routes     |
+| `websocket:start`  | Starts the websocket server     |
+| `websocket:stop`   | Stops the websocket server      |
 
 ## Server config
 
@@ -67,3 +75,7 @@ See [ext_conf_template.txt](ext_conf_template.txt) for all configuration options
 Laravel has some good documentation on how to setup NGINX for WebSockets.
 
 https://beyondco.de/docs/laravel-websockets/basic-usage/ssl#usage-with-a-reverse-proxy-like-nginx
+
+## Thanks
+
+Lots of ideas and inspiration taken from https://freek.dev/1228-introducing-laravel-websockets-an-easy-to-use-websocket-server-implemented-in-php

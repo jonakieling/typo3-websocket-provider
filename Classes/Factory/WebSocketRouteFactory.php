@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Route;
 class WebSocketRouteFactory
 {
     /**
-     * Wraps components with a WsServer and returns
+     * Wraps components with a WsServer and returns a simple route
      *
      * @param string $uri
      * @param MessageComponentInterface $component
