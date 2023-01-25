@@ -184,7 +184,7 @@ class Authentication implements HttpServerInterface
             $conn->feUser = $this->fetchUserAspect(
                 FrontendUserAuthentication::class,
                 $feCookieName,
-                $cookies[$beCookieName]
+                $cookies[$feCookieName]
             );
         } else {
             $conn->feUser = GeneralUtility::makeInstance(UserAspect::class);
