@@ -37,7 +37,7 @@ class ListRoutesCommand extends Command
         foreach ($this->webSocketRouterProvider as $routeProvider) {
             /** @var Route $route */
             foreach ($routeProvider->getRoutes() as $name => $route) {
-                $output->writeln("<info>{$route->getPath()}:</info> $name");
+                $output->writeln("<info>{$route->getPath()}</info> $name");
             }
         }
         return Command::SUCCESS;
