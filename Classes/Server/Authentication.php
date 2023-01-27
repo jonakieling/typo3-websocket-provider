@@ -8,10 +8,10 @@ use Ratchet\Http\HttpServerInterface;
 use Ratchet\MessageComponentInterface;
 use TYPO3\CMS\Core\Authentication\AbstractUserAuthentication;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Context\UserAspect;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
+use Werkraum\WebsocketProvider\Context\UserAspect;
 
 class Authentication implements HttpServerInterface
 {
@@ -54,6 +54,7 @@ class Authentication implements HttpServerInterface
      */
     public function onOpen(ConnectionInterface $conn, RequestInterface $request = null)
     {
+        // todo currently auth only takes place onOpen, does it need to be done on message?
         $this->addUserAspects($request, $conn);
 
         if ($this->app instanceof HttpServerInterface) {
