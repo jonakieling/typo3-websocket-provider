@@ -112,19 +112,6 @@ class ServerFactory
      */
     public function create(): IoServer
     {
-        try {
-            $component = GeneralUtility::makeInstance($this->config['app']['component']);
-            if (!$component instanceof ComponentInterface) {
-                throw new \RuntimeException('component must implement \Ratchet\ComponentInterface', 1673370821222);
-            }
-        } catch (\InvalidArgumentException $e) {
-            throw new \InvalidArgumentException(sprintf("websocket component %s", $e->getMessage()), 1673625570824);
-        }
-
-        if ($component instanceof ConfigureLoopInterface) {
-            $component->configureLoop($this->loop);
-        }
-
         $this->loop->addSignal(SIGINT, function () {
             unlink(ProcessUtility::infoDirectory() . getmypid() . '.pid');
             $this->loop->stop();
@@ -152,7 +139,7 @@ class ServerFactory
         $routes = new RouteCollection();
         /** @var WebSocketRouteProviderInterface $routeProvider */
         foreach ($this->webSocketRouterProvider as $routeProvider) {
-            $routes->addCollection($routeProvider->getRoutes());
+            $routes->addCollection($routeProvider->getRoutes($this->loop));
         }
         $context = new RequestContext;
         $matcher = new UrlMatcher($routes, $context);
