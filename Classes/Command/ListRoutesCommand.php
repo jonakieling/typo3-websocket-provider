@@ -12,8 +12,7 @@ namespace Werkraum\WebsocketProvider\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Routing\Route;
-use Werkraum\WebsocketProvider\WebSocketRouteProviderInterface;
+use Werkraum\WebsocketProvider\Interfaces\CustomRouteInterface;
 
 class ListRoutesCommand extends Command
 {
@@ -21,24 +20,25 @@ class ListRoutesCommand extends Command
     /**
      * @var iterable
      */
-    protected $webSocketRouterProvider;
+    protected $components;
 
     /**
-     * @param iterable $webSocketRouterProvider
+     * @param iterable $components
      */
-    public function __construct(iterable $webSocketRouterProvider)
+    public function __construct(iterable $components)
     {
         parent::__construct();
-        $this->webSocketRouterProvider = $webSocketRouterProvider;
+        $this->components = $components;
     }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var WebSocketRouteProviderInterface $routeProvider */
-        foreach ($this->webSocketRouterProvider as $routeProvider) {
-            /** @var Route $route */
-            foreach ($routeProvider->getRoutes() as $name => $route) {
-                $output->writeln("<info>{$route->getPath()}</info> $name");
+        foreach ($this->components as $component) {
+            if ($component instanceof CustomRouteInterface) {
+                $path = $component->getPath();
+            } else {
+                $path = '/' . str_replace("\\", '_', get_class($component));
             }
+            $output->writeln("<info>{$path}</info> " . get_class($component));
         }
         return Command::SUCCESS;
     }

@@ -34,7 +34,8 @@ class YourMessageComponent implements Ratchet\MessageComponentInterface
 }
 ```
 
-Mark you component as public to make use of the Symfony dependency injection within it.
+Mark your component as public to make use of the Symfony dependency injection within it.
+Tag your component with `websocket.component` to register it with the WebSocket provider.
 
 _Configuration/Services.yaml_
 ```yaml
@@ -43,16 +44,23 @@ _Configuration/Services.yaml_
 services:
   Vendor\Extension\WebSocket\YourMessageComponent:
     public: true
+    tags: ['websocket.component']
 ```
 
 ### Routes
 
-Implement the interface [`WebSocketRouteProviderInterface`](Classes%2FWebSocketRouteProviderInterface.php). The only
-method returns a Symfony RouteCollection. Each Route must have a WsServer as controller.
-You can use [WebSocketRouteFactory](Classes%2FFactory%2FWebSocketRouteFactory.php) to create WsServer Routes easily.
+You may let your component implement the interface [CustomRouteInterface](Classes%2FInterfaces%2FCustomRouteInterface.php).
+Return your custom route path with a leading slash (e.g. `/socket.io/my_component`).
+
+> The default route for `Vendor\Extension\MyComponent` would be `/Vendor_Extension_MyComponent`
 
 > Be aware that the route of your WebSockets may be prefixed by whatever you have set for your Nginx config. In my case
-> this is often /socket.io to dealt with TLS.
+> this is often /socket.io to dealt with TLS. This prefix needs to be included in your custom route.
+
+### The Loop
+
+In case you need e.g. addPeriodicTimer you can implement the interface [ConfigureLoopInterface](Classes%2FInterfaces%2FConfigureLoopInterface.php).
+You'll get the loop as parameter. The signals SIGTERM and SIGINT are already registered to shut down the server.
 
 ## Configuration
 

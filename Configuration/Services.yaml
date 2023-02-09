@@ -31,7 +31,7 @@ services:
 
   Werkraum\WebsocketProvider\Command\ListRoutesCommand:
     arguments:
-      - !tagged_iterator websocket.router
+      - !tagged_iterator websocket.component
     tags:
       - name: console.command
         command: 'websocket:routes'

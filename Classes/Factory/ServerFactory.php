@@ -147,7 +147,7 @@ class ServerFactory
                 if ($component instanceof CustomRouteInterface) {
                     $path = $component->getPath();
                 } else {
-                    $path = str_replace("\\", '_', get_class($component));
+                    $path = '/' . str_replace("\\", '_', get_class($component));
                 }
                 $routes->add($path, WebSocketRouteFactory::createRoute($path, $component));
             }
