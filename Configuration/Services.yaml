@@ -9,7 +9,7 @@ services:
 
   Werkraum\WebsocketProvider\Factory\ServerFactory:
     arguments:
-      - !tagged_iterator websocket.router
+      - !tagged_iterator websocket.component
 
   Werkraum\WebsocketProvider\Command\StartServerCommand:
     tags:

@@ -2,7 +2,7 @@
 
 namespace Werkraum\WebsocketProvider\Factory;
 
-use Ratchet\WebSocket\MessageComponentInterface;
+use Ratchet\ComponentInterface;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
 
@@ -15,13 +15,13 @@ class WebSocketRouteFactory
      * Wraps components with a WsServer and returns a simple route
      *
      * @param string $uri
-     * @param MessageComponentInterface $component
+     * @param ComponentInterface $component
      * @return Route
      */
-    public function createRoute(string $uri, $component)
+    public static function createRoute(string $uri, $component)
     {
-        if ($component instanceof MessageComponentInterface) {
-            throw new \RuntimeException('route controller must implement MessageComponentInterface', 1674660735943);
+        if (!is_subclass_of($component, ComponentInterface::class)) {
+            throw new \RuntimeException('route controller must implement ComponentInterface', 1674660735943);
         }
         $action = new WsServer($component);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Werkraum\WebsocketProvider\Loop;
+namespace Werkraum\WebsocketProvider\Interfaces;
 
 use React\EventLoop\LoopInterface;
 

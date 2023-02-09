@@ -24,7 +24,8 @@ use TYPO3\CMS\Core\Routing\RouteCollection;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use Werkraum\WebsocketProvider\Loop\ConfigureLoopInterface;
+use Werkraum\WebsocketProvider\Interfaces\ConfigureLoopInterface;
+use Werkraum\WebsocketProvider\Interfaces\CustomRouteInterface;
 use Werkraum\WebsocketProvider\Server\Authentication;
 use Werkraum\WebsocketProvider\Server\HttpServer;
 use Werkraum\WebsocketProvider\Server\Limiter;
@@ -57,16 +58,16 @@ class ServerFactory
     /**
      * @var iterable
      */
-    protected $webSocketRouterProvider;
+    protected $messageComponents;
 
     /**
-     * @param iterable $webSocketRouterProvider
+     * @param iterable $messageComponents
      */
-    public function __construct(iterable $webSocketRouterProvider)
+    public function __construct(iterable $messageComponents)
     {
         $this->config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('websocket_provider');
         $this->loop = Loop::get();
-        $this->webSocketRouterProvider = $webSocketRouterProvider;
+        $this->messageComponents = $messageComponents;
     }
 
     /**
@@ -137,9 +138,19 @@ class ServerFactory
          */
 
         $routes = new RouteCollection();
-        /** @var WebSocketRouteProviderInterface $routeProvider */
-        foreach ($this->webSocketRouterProvider as $routeProvider) {
-            $routes->addCollection($routeProvider->getRoutes($this->loop));
+
+        foreach ($this->messageComponents as $component) {
+            if ($component instanceof ComponentInterface) {
+                if ($component instanceof ConfigureLoopInterface) {
+                    $component->configureLoop($this->loop);
+                }
+                if ($component instanceof CustomRouteInterface) {
+                    $path = $component->getPath();
+                } else {
+                    $path = str_replace("\\", '_', get_class($component));
+                }
+                $routes->add($path, WebSocketRouteFactory::createRoute($path, $component));
+            }
         }
         $context = new RequestContext;
         $matcher = new UrlMatcher($routes, $context);
