@@ -20,6 +20,9 @@ server {
 
     # cat=server; type=string; label=max_connections_per_address_per_second: The maximum number of new connections one client can open per second
     max_connections_per_address_per_second = 10
+
+    # cat=server; type=string; label=route_prefix: Add a prefix to every route for this server.
+    route_prefix = /
 }
 
 tls {

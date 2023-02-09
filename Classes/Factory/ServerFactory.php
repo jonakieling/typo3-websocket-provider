@@ -31,7 +31,6 @@ use Werkraum\WebsocketProvider\Server\HttpServer;
 use Werkraum\WebsocketProvider\Server\Limiter;
 use Werkraum\WebsocketProvider\Server\OriginCheck;
 use Werkraum\WebsocketProvider\Utility\ProcessUtility;
-use Werkraum\WebsocketProvider\WebSocketRouteProviderInterface;
 
 class ServerFactory
 {
@@ -146,8 +145,14 @@ class ServerFactory
                 }
                 if ($component instanceof CustomRouteInterface) {
                     $path = $component->getPath();
+                    if (strpos($path, '/') !== 0) {
+                        $path = '/' . $path;
+                    }
                 } else {
                     $path = '/' . str_replace("\\", '_', get_class($component));
+                }
+                if (strpos($path, $this->config['server']['route_prefix']) !== 0) {
+                    $path = $this->config['server']['route_prefix'] . $path;
                 }
                 $routes->add($path, WebSocketRouteFactory::createRoute($path, $component));
             }
