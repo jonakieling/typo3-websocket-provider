@@ -1,10 +1,5 @@
-app {
-    # cat=App; type=string; label=handler: MessageComponent that handles all requests
-    component =
-}
-
 server {
-    # cat=server; type=string; label=allowed_origins: List of client hosts that are allowed to connect (you can use site:identifier, empty allows all)
+    # cat=server; type=string; label=allowed_origins: List of client hosts that are allowed to connect (you can use 'site:<identifier>', empty allows all)
     allowed_origins =
     # cat=server; type=string; label=max_request_size_in_kb: The maximum number of KB a request can be
     max_request_size_in_kb = 4
