@@ -2,24 +2,20 @@
 
 namespace Werkraum\WebsocketProvider\Context;
 
-use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
-
 class UserAspect extends \TYPO3\CMS\Core\Context\UserAspect
 {
     /**
-     * Additionaly can retrieve the users team_id
+     * Generic helper to fetch
      *
-     * @param string $name
+     * @param string $propertyName
      * @return array|bool|int|int[]|string
-     * @throws AspectPropertyNotFoundException
      */
-    public function get(string $name)
+    public function getUserProperty(string $propertyName)
     {
-        if ($name === 'teamId') {
-            return (int)($this->user->user['tx_stzteamverwaltung_team_id'] ?? 0);
+        if (!isset($this->user->user, $this->user->user[$propertyName])) {
+            return null;
         }
-
-        return parent::get($name);
+        return ($this->user->user[$propertyName]);
     }
 
 }
