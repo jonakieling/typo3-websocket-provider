@@ -20,8 +20,8 @@ class WebSocketRouteFactory
      */
     public static function createRoute(string $uri, $component)
     {
-        if (!is_subclass_of($component, ComponentInterface::class)) {
-            throw new \RuntimeException('route controller must implement ComponentInterface', 1674660735943);
+        if (!$component instanceof ComponentInterface) {
+            throw new \RuntimeException('route controller must at least implement ComponentInterface', 1674660735943);
         }
         $action = new WsServer($component);
 
