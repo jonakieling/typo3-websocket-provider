@@ -81,8 +81,14 @@ Ratchet\Server\EchoServer:
 ### Authentication
 
 The current frontend and backend user sessions are added to the connection as UserAspects.
+The ID of the connection is added as well.
+```php
+$conn->feUser
+$conn->beUser
+```
 
-Connections are not rejected when not authenticated.
+Connections are not rejected when not authenticated. Additionally the authentication is only checked on opening a
+connection.
 
 ### Rate limiting
 
