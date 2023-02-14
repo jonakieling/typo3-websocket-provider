@@ -105,6 +105,54 @@ Laravel has some good documentation on how to setup NGINX for WebSockets.
 
 https://beyondco.de/docs/laravel-websockets/basic-usage/ssl#usage-with-a-reverse-proxy-like-nginx
 
+### DDEV
+
+Open the port. Either via DDEV config [`web_extra_exposed_ports`](https://ddev.readthedocs.io/en/stable/users/configuration/config/#web_extra_exposed_ports) or a custom docker-compose file.
+
+_docker-compose.websockets.yaml_
+```yaml
+version: '3.6'
+services:
+  web:
+    ports:
+      - "18080"
+```
+
+Port and the URL part `/socket.io` can be adjusted to your needs. I recommend setting the extension setting
+`route_prefix` to whatever you set as the URL part in your websocket config.
+
+Below is the proxy pass config that needs to be added to the webserver config. This uses a custom URL part to
+distinguish between WebSocket and regular HTTP requests. This integrates well with existing webserver configuration for
+TYPO3. The Laravel documentation has a Nginx setup without the URL part.
+
+> Remember to remove the `#ddev-generated` line in the webserver config otherwise your changes will be overridden after
+> restarting DDEV.
+
+#### Apache
+
+```
+<Location "/socket.io">
+    LoadModule proxy_wstunnel_module /usr/lib/apache2/modules/mod_proxy_wstunnel.so
+    ProxyPass "ws://localhost:18080/socket.io"
+    ProxyPassReverse "ws://localhost:18080/socket.io"
+    ProxyPreserveHost On
+    RequestHeader set Upgrade "websocket"
+    RequestHeader set Connection "Upgrade"
+</Location>
+```
+
+#### NGINX
+
+```
+location /socket.io {
+    proxy_pass http://localhost:18080;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+    proxy_set_header Host $host;
+}
+```
+
 ## Thanks
 
 Lots of ideas and inspiration taken from https://freek.dev/1228-introducing-laravel-websockets-an-easy-to-use-websocket-server-implemented-in-php
