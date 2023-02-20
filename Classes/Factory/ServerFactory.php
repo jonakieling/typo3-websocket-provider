@@ -121,15 +121,14 @@ class ServerFactory
             $this->loop->stop();
         });
 
-        $socket = new SocketServer("$this->host:$this->port", [], $this->loop);
-
         if ($this->config['tls']['local_cert']) {
-            echo "wss";
             $socket = new SocketServer(
                 "tls://$this->host:$this->port",
                 ['tls' => $this->config['tls']],
                 $this->loop
             );
+        } else {
+            $socket = new SocketServer("$this->host:$this->port", [], $this->loop);
         }
 
         /**
