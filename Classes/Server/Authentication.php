@@ -3,18 +3,23 @@
 namespace Werkraum\WebsocketProvider\Server;
 
 use Psr\Http\Message\RequestInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Ratchet\ConnectionInterface;
 use Ratchet\Http\HttpServerInterface;
 use Ratchet\MessageComponentInterface;
 use TYPO3\CMS\Core\Authentication\AbstractUserAuthentication;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Session\SessionManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use Werkraum\WebsocketProvider\Context\UserAspect;
 
-class Authentication implements HttpServerInterface
+class Authentication implements HttpServerInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var MessageComponentInterface
      */
@@ -93,6 +98,9 @@ class Authentication implements HttpServerInterface
      * Taken from Guzzle3
      */
     protected function parseCookie($cookie, $host = null, $path = null, $decode = false) {
+        $this->logger->debug('parsing cookie', [
+            'cookie' => $cookie,
+        ]);
         // Explode the cookie string using a series of semicolons
         $pieces = array_filter(array_map('trim', explode(';', $cookie)));
 
@@ -149,6 +157,9 @@ class Authentication implements HttpServerInterface
         if (!$data['expires'] && $data['max_age']) {
             $data['expires'] = time() + (int) $data['max_age'];
         }
+        $this->logger->debug('parsed cookie data', [
+            'data' => $data,
+        ]);
 
         return $data;
     }
@@ -171,6 +182,11 @@ class Authentication implements HttpServerInterface
 
         $beCookieName = trim($GLOBALS['TYPO3_CONF_VARS']['BE']['cookieName']);
         if (isset($cookies[$beCookieName])) {
+            $this->logger->debug('fetching be user', [
+                'authClass' => BackendUserAuthentication::class,
+                'session' => $cookies[$beCookieName],
+                'beCookieName' => $beCookieName,
+            ]);
             $conn->beUser = $this->fetchUserAspect(
                 BackendUserAuthentication::class,
                 $beCookieName,
@@ -182,6 +198,11 @@ class Authentication implements HttpServerInterface
 
         $feCookieName = trim($GLOBALS['TYPO3_CONF_VARS']['FE']['cookieName']);
         if (isset($cookies[$feCookieName])) {
+            $this->logger->debug('fetching fe user', [
+                'authClass' => FrontendUserAuthentication::class,
+                'session' => $cookies[$feCookieName],
+                'feCookieName' => $feCookieName,
+            ]);
             $conn->feUser = $this->fetchUserAspect(
                 FrontendUserAuthentication::class,
                 $feCookieName,
@@ -210,6 +231,13 @@ class Authentication implements HttpServerInterface
         $user = GeneralUtility::makeInstance($authenticationClass);
         $user->start();
         $user->fetchGroupData(); // group data needs to be loaded once to be accessible later
+        $sessionBackend = GeneralUtility::makeInstance(SessionManager::class)->getSessionBackend($user->loginType);
+        $this->logger->debug('auth data', [
+            'session_id' => $user->id,
+            'newSessionID' => $user->newSessionID,
+            'sessionBackend' => get_class($sessionBackend),
+        ]);
+
         unset($_COOKIE[$cookieName]);
 
         return GeneralUtility::makeInstance(UserAspect::class, $user);

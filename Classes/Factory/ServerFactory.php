@@ -160,7 +160,7 @@ class ServerFactory
         $matcher = new UrlMatcher($routes, $context);
         $router = new Router($matcher);
 
-        $auth = new Authentication($router);
+        $auth = GeneralUtility::makeInstance(Authentication::class, $router);
 
         $limiter = (new Limiter($auth))
             ->setMaxConnections($this->config['server']['max_connections'])
